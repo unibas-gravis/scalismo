@@ -100,7 +100,7 @@ class TriangleMesh3DOperations(private val mesh: TriangleMesh[_3D]) {
       .filter(_._2)
       .map(_._1)
 
-    val points = remainingPointTriplet.flatten.distinct
+    val points = remainingPoints.map(_._1)
     val pt2Id = points.zipWithIndex.toMap
     val cells = remainingPointTriplet.map { case vec =>
       TriangleCell(PointId(pt2Id(vec(0))), PointId(pt2Id(vec(1))), PointId(pt2Id(vec(2))))
