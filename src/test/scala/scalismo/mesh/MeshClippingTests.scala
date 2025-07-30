@@ -58,9 +58,12 @@ class MeshClippingTests extends ScalismoTestSuite {
 
       val clipped = mesh.operations.clip(_.z > 0.5)
 
-      clipped.pointSet.numberOfPoints shouldBe 3
-      clipped.pointSet.pointSequence shouldBe Fixture.points.dropRight(1)
-      clipped.triangulation.triangles shouldBe Fixture.cells.triangles.dropRight(1)
+      val clippedPoints = clipped.pointSet.pointSequence
+      val expectedPoints = Fixture.points.dropRight(1)
+
+      clippedPoints.size shouldBe 3
+      expectedPoints.foreach(pt => clippedPoints.contains(pt) shouldBe true)
+      clipped.triangulation.triangles.map(lowestStart) shouldBe Fixture.cells.triangles.dropRight(1).map(lowestStart)
     }
 
     it("should clip a mesh correctly also with points not contained in a triangle") {
