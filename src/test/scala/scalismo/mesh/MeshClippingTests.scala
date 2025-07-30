@@ -19,7 +19,7 @@ import breeze.linalg.DenseVector
 import scalismo.ScalismoTestSuite
 import scalismo.common.{PointId, UnstructuredPoints}
 import scalismo.geometry.Point.implicits.*
-import scalismo.geometry.{Point, Point3D, _3D}
+import scalismo.geometry.{_3D, Point, Point3D}
 import scalismo.io.MeshIO
 import scalismo.transformations.*
 
@@ -45,7 +45,9 @@ class MeshClippingTests extends ScalismoTestSuite {
 
     object Fixture {
       val points = IndexedSeq(Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(0, 1, 0), Point3D(0, 0, 1))
-      val cells = TriangleList(IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2)), TriangleCell(PointId(0), PointId(2), PointId(3))))
+      val cells = TriangleList(
+        IndexedSeq(TriangleCell(PointId(0), PointId(1), PointId(2)), TriangleCell(PointId(0), PointId(2), PointId(3)))
+      )
       val mesh = TriangleMesh3D(points, cells)
       val meshWithFreePoint = TriangleMesh3D(points, TriangleList(cells.triangles.drop(1)))
       val meshWithFreePointAtEnd = TriangleMesh3D(points, TriangleList(cells.triangles.dropRight(1)))
