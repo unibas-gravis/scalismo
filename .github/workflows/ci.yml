@@ -2,9 +2,9 @@ name: Scala CI
 
 on:
   push:
-    branches: [ master, release* ]
+    branches: [ main, release* ]
   pull_request:
-    branches: [ master, develop, release* ]
+    branches: [ main, release* ]
 
 jobs:
   test:
@@ -16,6 +16,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 11
+      - uses: sbt/setup-sbt@v1
       - name: Run tests
         run:  |
           sudo apt-get update
@@ -26,5 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: sbt/setup-sbt@v1
       - name: Formatting
         run: sbt scalafmtSbtCheck scalafmtCheck test:scalafmtCheck
