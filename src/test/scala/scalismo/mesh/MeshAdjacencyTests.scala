@@ -10,15 +10,17 @@ class MeshAdjacencyTests extends ScalismoTestSuite {
 
     object Fixture {
       val points = IndexedSeq(
-        Point3D(0,0,0),
-        Point3D(1,0,0),
-        Point3D(0,1,0),
-        Point3D(0,0,1)
+        Point3D(0, 0, 0),
+        Point3D(1, 0, 0),
+        Point3D(0, 1, 0),
+        Point3D(0, 0, 1)
       )
-      val cells = TriangleList(IndexedSeq(
-        TriangleCell(PointId(0),PointId(1),PointId(2)),
-        TriangleCell(PointId(0),PointId(2),PointId(3)),
-      ))
+      val cells = TriangleList(
+        IndexedSeq(
+          TriangleCell(PointId(0), PointId(1), PointId(2)),
+          TriangleCell(PointId(0), PointId(2), PointId(3))
+        )
+      )
       val mesh = TriangleMesh3D(
         points,
         cells
@@ -42,7 +44,7 @@ class MeshAdjacencyTests extends ScalismoTestSuite {
         (PointId(2), IndexedSeq(TriangleId(0), TriangleId(1))),
         (PointId(3), IndexedSeq(TriangleId(1)))
       )
-      for( (pid, adjList) <- tests ) {
+      for ((pid, adjList) <- tests) {
         val adj = mesh.triangulation.adjacentTrianglesForPoint(pid)
         adj.sortBy(_.id) shouldBe adjList
       }
@@ -52,7 +54,11 @@ class MeshAdjacencyTests extends ScalismoTestSuite {
       {
         val mesh = Fixture.meshWithFreePoint
 
-        val tests = Seq((PointId(0), IndexedSeq(TriangleId(0))), (PointId(1), IndexedSeq()), (PointId(2), IndexedSeq(TriangleId(0))), (PointId(3), IndexedSeq(TriangleId(0))))
+        val tests = Seq((PointId(0), IndexedSeq(TriangleId(0))),
+                        (PointId(1), IndexedSeq()),
+                        (PointId(2), IndexedSeq(TriangleId(0))),
+                        (PointId(3), IndexedSeq(TriangleId(0)))
+        )
         for ((pid, adjList) <- tests) {
           val adj = mesh.triangulation.adjacentTrianglesForPoint(pid)
           adj.sortBy(_.id) shouldBe adjList
@@ -61,10 +67,10 @@ class MeshAdjacencyTests extends ScalismoTestSuite {
       {
         val mesh = Fixture.meshWithFreePointAtEnd
         val tests = Seq(
-          (PointId(0),  IndexedSeq(TriangleId(0))),
-          (PointId(1),  IndexedSeq(TriangleId(0))),
-          (PointId(2),  IndexedSeq(TriangleId(0))),
-          (PointId(3),  IndexedSeq()),
+          (PointId(0), IndexedSeq(TriangleId(0))),
+          (PointId(1), IndexedSeq(TriangleId(0))),
+          (PointId(2), IndexedSeq(TriangleId(0))),
+          (PointId(3), IndexedSeq())
         )
         for ((pid, adjList) <- tests) {
           val adj = mesh.triangulation.adjacentTrianglesForPoint(pid)
