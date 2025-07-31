@@ -200,7 +200,8 @@ private[mesh] class TriangleMesh3DSpatialIndex(private val bs: BoundingSphere,
   private def _getClosestPoint(point: Point[_3D]): Unit = {
     val p = point.toVector
 
-    val result = BSDistance.toTriangle(point.toVector, triangles(0))
+    lastIdx.set(new Index(0))
+    val result = BSDistance.toTriangle(point.toVector, triangles(lastIdx.get().idx))
     updateCP(res.get(), result)
 
     // search for true candidate
