@@ -42,7 +42,7 @@ case class TriangleList(triangles: IndexedSeq[TriangleCell]) {
     val dataSeq = IndexedSeq.tabulate(pointIds.size) { i =>
       data(pointIds(i)).toIndexedSeq
     }
-    id => dataSeq(id.id)
+    id => if (id.id < dataSeq.size) dataSeq(id.id) else IndexedSeq()
   }
 
   /** points adjacent to a point */
