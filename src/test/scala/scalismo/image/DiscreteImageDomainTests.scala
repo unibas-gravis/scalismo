@@ -1,7 +1,7 @@
 package scalismo.image
 
 import scalismo.ScalismoTestSuite
-import scalismo.common.BoxDomain
+import scalismo.common.{BoxDomain, PointWithId}
 import scalismo.geometry.*
 
 class DiscreteImageDomainTests extends ScalismoTestSuite {
@@ -30,6 +30,35 @@ class DiscreteImageDomainTests extends ScalismoTestSuite {
         domain.boundingBox.origin,
         domain.boundingBox.oppositeCorner + EuclideanVector(1.0, 1.0)
       ).volume
+    }
+
+    it("finds the correct nearest neighbour") {
+      val domain =
+        DiscreteImageDomain3D(Point3D(1.0, 3.5, 42.0), EuclideanVector3D(1.0, 2.1, 0.42), IntVector3D(42, 49, 32))
+
+      val query = Point3D(4.0, 20.0, 44.0)
+      val cp = domain.structuredPoints.findClosestPoint(query)
+      val brutForce = domain.structuredPoints.pointsWithId.map(pId => ((pId._1 - query).norm, pId)).minBy(_._1)
+
+      val bf = PointWithId(brutForce._2._1, brutForce._2._2)
+
+      cp shouldBe bf
+    }
+
+    it("finds the correct n nearest neighbours") {
+      val domain =
+        DiscreteImageDomain3D(Point3D(1.0, 3.5, 42.0), EuclideanVector3D(1.0, 2.1, 0.42), IntVector3D(42, 49, 32))
+
+      val query = Point3D(4.0, 20.0, 44.0)
+      val N = 28
+      val cp = domain.structuredPoints.findNClosestPoints(query, N)
+
+      val brutForce =
+        domain.structuredPoints.pointsWithId.map(pId => ((pId._1 - query).norm, pId)).toSeq.sortBy(_._1).take(N)
+      val bf = brutForce.map(bf => PointWithId(bf._2._1, bf._2._2))
+
+      cp.size shouldBe bf.size
+      bf.foreach(bf => cp.contains(bf) shouldBe true)
     }
   }
 

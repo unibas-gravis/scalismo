@@ -16,8 +16,8 @@
 package scalismo.image
 
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
-import scalismo.common._
-import scalismo.geometry._
+import scalismo.common.*
+import scalismo.geometry.*
 import scalismo.transformations.{
   Rotation,
   Rotation2D,
@@ -30,6 +30,7 @@ import scalismo.transformations.{
   TranslationAfterRotation3D
 }
 
+import scala.collection.mutable
 import scala.language.implicitConversions
 
 /**
@@ -106,9 +107,60 @@ abstract class StructuredPoints[D: NDSpace] extends PointSet[D] with Equals {
   }
 
   /**
-   * returns the n closest points to the given set of points
+   * returns the n closest points to the given point
+   *
+   * Note: If two points are equidistant, there is no guarantee which one is taken first into the set.
    */
-  override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = throw new UnsupportedOperationException
+  override def findNClosestPoints(pt: Point[D], n: Int): Seq[PointWithId[D]] = {
+    val expansionDirections: Seq[DenseVector[Int]] = (0 until pt.dimensionality) flatMap { d =>
+      Seq(-1, 1) map { offset =>
+        val arr = Array.fill(pt.dimensionality)(0)
+        arr(d) = offset
+        DenseVector(arr)
+      }
+    }
+    val cIdx = pointToContinuousIndex(pt)
+    val idxClosestPoint = continuousIndextoIndex(cIdx)
+    val tuple = ((pt - indexToPoint(idxClosestPoint)).norm, idxClosestPoint)
+    val expansionPoints =
+      mutable.PriorityQueue[(Double, IntVector[D])](tuple)(Ordering.by(-_._1))
+    val closestPoints = mutable.PriorityQueue[(Double, IntVector[D])](tuple)(Ordering.by(_._1))
+
+    val visitedPoints = mutable.Set[Int](pointId(idxClosestPoint).id)
+    while (
+      expansionPoints.nonEmpty && ( // we still have points to process
+        closestPoints.size < n // not enough points
+          || expansionPoints.head._1 < closestPoints.head._1 // maybe closer point
+      )
+    ) {
+      val (dist, expansionIndex) = expansionPoints.dequeue()
+      val pid = pointId(expansionIndex).id
+
+      if (!visitedPoints.contains(pid)) {
+        visitedPoints += pid
+        closestPoints.enqueue((dist, expansionIndex))
+        if (closestPoints.size > n) {
+          closestPoints.dequeue()
+        }
+      }
+
+      expansionDirections.foreach { delta =>
+        val newCandidate = IntVector((expansionIndex.toBreezeVector + delta).toArray)
+        val pid = pointId(newCandidate).id
+        if (!visitedPoints.contains(pid)) {
+          val tuple = ((pt - indexToPoint(newCandidate)).norm, newCandidate)
+          if (closestPoints.size < n || tuple._1 < closestPoints.head._1) {
+            expansionPoints.enqueue(tuple)
+          } else {
+            if (closestPoints.size >= n) {
+              visitedPoints += pid
+            }
+          }
+        }
+      }
+    }
+    closestPoints.take(n).dequeueAll.sortBy(_._1).map(cp => PointWithId(indexToPoint(cp._2), pointId(cp._2)))
+  }
 
   def continuousIndextoIndex(cidx: EuclideanVector[D]): IntVector[D] = {
     var d = 0
