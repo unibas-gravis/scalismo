@@ -19,18 +19,19 @@ import breeze.linalg.svd.SVD
 import breeze.linalg.{diag, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.common.DiscreteField.vectorize
-import scalismo.common._
+import scalismo.common.*
 import scalismo.common.interpolation.{FieldInterpolator, NearestNeighborInterpolator}
-import scalismo.geometry._
+import scalismo.geometry.*
 import scalismo.image.StructuredPoints
 import scalismo.kernels.{DiscreteMatrixValuedPDKernel, MatrixValuedPDKernel}
-import scalismo.numerics.{PivotedCholesky, Sampler}
-import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{Eigenpair => DiscreteEigenpair, _}
+import scalismo.numerics.{GramDiagonalize, PivotedCholesky, Sampler}
+import scalismo.statisticalmodel.DiscreteLowRankGaussianProcess.{Eigenpair as DiscreteEigenpair, *}
 import scalismo.statisticalmodel.LowRankGaussianProcess.Eigenpair
 import scalismo.statisticalmodel.NaNStrategy.NanIsNumericValue
 import scalismo.statisticalmodel.dataset.DataCollection
 import scalismo.utils.{Memoize, Random}
 
+import scala.annotation.threadUnsafe
 import scala.language.higherKinds
 import scala.collection.parallel.immutable.ParVector
 
@@ -358,6 +359,37 @@ class DiscreteLowRankGaussianProcess[D: NDSpace, DDomain[DD] <: DiscreteDomain[D
     )
   }
 
+  /**
+   * realigns the model on the provided part of the domain. Aligns over the translation and, when using
+   * withExtendedBasis = true, over the extended basis (the default implicit [[RealignExtendedBasis]] adds rotation.
+   * This rotation will always be calculated around the center of the provided ids. Rotations are around the cardinal
+   * directions.).
+   *
+   * @param ids
+   *   these define the parts of the domain that are aligned to. Depending on the withExtendedBasis parameter has a
+   *   minimum length requirements (default basis extension in 3D should be used with >=4 provided ids for example)
+   * @param withExtendedBasis
+   *   True if the extended basis should be included. By default this uses a rotation extension. False makes the
+   *   realignment only over translation. Translational alignment can be done exactly. For more information see
+   *   [[RealignExtendedBasis]].
+   * @param diagonalize
+   *   True if a diagonal basis should be returned. In general, it is strongly recommended to use a orthonormal basis -
+   *   here referred to as diagonal. This does not increase complexity and is a more intuitive formulation of the model.
+   *   If internal fields are accessed diagonalize should be set to true. This option can be set to false to make the
+   *   same coefficient lead to very similar shapes in the pre- and after realignment model (or exactly the same shapes
+   *   if withExtendedBasis = false).
+   * @return
+   *   The resulting [[DiscreteLowRankGaussianProcess]] aligned on the provided instances of [[PointId]]. If
+   *   withExtendedBasis = false then the original and the returned model can produce the same mesh with different
+   *   translations. That means the shape spaces are the same but the fieldsa are translated.
+   */
+  def realign(ids: IndexedSeq[PointId], withExtendedBasis: Boolean = true, diagonalize: Boolean = true)(using
+    vectorizer: Vectorizer[Value],
+    realigning: RealignExtendedBasis[D, Value]
+  ): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
+    DiscreteLowRankGaussianProcess.realignment(this, ids, withExtendedBasis, diagonalize)
+  }
+
   protected[statisticalmodel] def instanceVector(alpha: DenseVector[Double]): DenseVector[Double] = {
     require(rank == alpha.size)
 
@@ -636,6 +668,75 @@ object DiscreteLowRankGaussianProcess {
     }
 
     DiscreteMatrixValuedPDKernel(domain, cov, outputDim)
+  }
+
+  def realignment[D: NDSpace, DDomain[DD] <: DiscreteDomain[DD], Value](
+    model: DiscreteLowRankGaussianProcess[D, DDomain, Value],
+    ids: IndexedSeq[PointId],
+    withExtendedBasis: Boolean,
+    diagonalize: Boolean
+  )(using
+    vectorizer: Vectorizer[Value],
+    realigning: RealignExtendedBasis[D, Value]
+  ): DiscreteLowRankGaussianProcess[D, DDomain, Value] = {
+    val d = NDSpace.apply[D].dimensionality
+    // build the projection matrix for the desired pose
+    val p = {
+      @threadUnsafe
+      lazy val pt = breeze.linalg.tile(DenseMatrix.eye[Double](d), model.domain.pointSet.numberOfPoints, 1)
+      if withExtendedBasis then
+        val center = ids.map(id => model.domain.pointSet.point(id).toVector).reduce(_ + _).map(_ / ids.length).toPoint
+        val pr = realigning.getBasis[DDomain](model, center)
+        if realigning.useTranslation then DenseMatrix.horzcat(pt, pr)
+        else pr
+      else pt
+    }
+    // call the realignment implementation
+    val (nmean, nbasis, nvar) = realignmentComputation(model.meanVector,
+                                                       model.basisMatrix,
+                                                       model.variance,
+                                                       p,
+                                                       ids.map(_.id),
+                                                       dim = d,
+                                                       diagonalize = diagonalize,
+                                                       projectMean = false
+    )
+
+    new DiscreteLowRankGaussianProcess[D, DDomain, Value](model.domain, nmean, nvar, nbasis)
+  }
+
+  private def realignmentComputation(mean: DenseVector[Double],
+                                     basis: DenseMatrix[Double],
+                                     s: DenseVector[Double],
+                                     p: DenseMatrix[Double],
+                                     ids: IndexedSeq[Int],
+                                     dim: Int,
+                                     diagonalize: Boolean,
+                                     projectMean: Boolean
+  ): (DenseVector[Double], DenseMatrix[Double], DenseVector[Double]) = {
+    val x = for // prepare indices
+      id <- ids
+      d <- 0 until dim
+    yield id * dim + d
+    // prepare the majority of the projection matrix
+    val px = p(x, ::).toDenseMatrix
+    val ptpipt = breeze.linalg.pinv(px.t * px) * px.t
+
+    // performs the actual projection. batches all basis vectors
+    // p -> projection rank, n number of indexes*dim, r cols of basis, N rows of basis
+    val alignedC = ptpipt * basis(x, ::).toDenseMatrix // pxn * nxr
+    val alignedEigf = basis - p * alignedC // Nxr - Nxp * pxr
+    val alignedMean = if projectMean then // if desired projects the mean vector as well
+      val alignedMc = ptpipt * mean // same projection with r==1
+      mean - p * alignedMc
+    else mean
+
+    // rediagonalize. You can skip this if you ONLY sample from the resulting model
+    val (newbasis, news) =
+      if diagonalize then GramDiagonalize.rediagonalizeGram(alignedEigf, s)
+      else (alignedEigf, s)
+
+    (alignedMean, newbasis, news)
   }
 
 }

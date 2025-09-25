@@ -15,7 +15,7 @@
  */
 package scalismo.statisticalmodel
 
-import breeze.linalg.{DenseMatrix, DenseVector}
+import breeze.linalg.{rand, DenseMatrix, DenseVector}
 import breeze.stats.distributions.Gaussian
 import scalismo.ScalismoTestSuite
 import scalismo.common.*
@@ -28,6 +28,7 @@ import scalismo.io.statisticalmodel.StatismoIO
 import scalismo.kernels.{DiagonalKernel, GaussianKernel, MatrixValuedPDKernel}
 import scalismo.numerics.PivotedCholesky.RelativeTolerance
 import scalismo.numerics.{GridSampler, UniformSampler}
+import scalismo.transformations.TranslationAfterRotation
 import scalismo.utils.Random
 
 import java.net.URLDecoder
@@ -507,11 +508,11 @@ class GaussianProcessTests extends ScalismoTestSuite {
 
     object Fixture {
       val domain = BoxDomain((-5.0, -5.0, -5.0), (5.0, 5.0, 5.0))
-      val sampler = UniformSampler(domain, 6 * 6 * 6)
+      val sampler = UniformSampler(domain, 5 * 5 * 5)
       val mean = Field[_3D, EuclideanVector[_3D]](EuclideanSpace[_3D], _ => EuclideanVector(0.0, 0.0, 0.0))
       val gp = GaussianProcess(mean, DiagonalKernel(GaussianKernel[_3D](5), 3))
 
-      val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, 200)
+      val lowRankGp = LowRankGaussianProcess.approximateGPNystrom(gp, sampler, 120)
 
       val discretizationPoints = sampler.sample().map(_._1)
       val discreteLowRankGp = DiscreteLowRankGaussianProcess(UnstructuredPointsDomain(discretizationPoints), lowRankGp)
@@ -723,6 +724,99 @@ class GaussianProcessTests extends ScalismoTestSuite {
       }
     }
 
+    describe("when realigning a model") {
+      it("the translation aligned model should be exactly orthogonal to translations on the aligned ids.") {
+        val f = Fixture
+        val dgp = f.discreteLowRankGp
+
+        val alignedDgp = dgp.realign(dgp.mean.pointsWithIds.map(t => t._2).toIndexedSeq)
+
+        val shifts: IndexedSeq[Double] = alignedDgp.klBasis
+          .map(klp => {
+            val ef = klp.eigenfunction
+            ef.data.reduce(_ + _).norm
+          })
+          .toIndexedSeq
+        val res = shifts.sum
+
+        res shouldBe 0.0 +- 1e-7
+      }
+
+      it("the rotation aligned model should exhibit only small rotations on the aligned ids.") {
+        val f = Fixture
+        val dgp = f.discreteLowRankGp
+
+        val ids = {
+          val sorted = dgp.mean.pointsWithIds.toIndexedSeq.sortBy(t => t._1.toArray.sum)
+          sorted.take(10).map(_._2)
+        }
+        val coef = (0 until 5).map(_ => this.random.scalaRandom.nextInt(100))
+        val alignedDgp = dgp.realign(ids)
+        val res = IndexedSeq(dgp, alignedDgp).map(model => {
+          val samples = coef
+            .map(i => model.instance(DenseVector.tabulate[Double](model.rank) { j => if i == j then 0.1 else 0.0 }))
+            .map(_ => model.sample())
+          val rp = ids.map(id => model.mean.domain.pointSet.point(id).toVector).reduce(_ + _).map(d => d / ids.length)
+          val rotations = samples.map(sample => {
+            val ldms = ids.map(id =>
+              (model.domain.pointSet.point(id) + model.mean.data(id.id),
+               sample.domain.pointSet.point(id.id) + sample.data(id.id)
+              )
+            )
+            val rigidTransform: TranslationAfterRotation[_3D] =
+              scalismo.registration.LandmarkRegistration.rigid3DLandmarkRegistration(ldms, rp.toPoint)
+            rigidTransform.rotation.parameters
+          })
+          rotations.map(m => m.data.map(math.abs).sum).sum
+        })
+        res(1) shouldBe <(res(0) * 0.6)
+      }
+
+      it("the non diagonalized model should be equivalent to the diagonalized one") {
+        val f = Fixture
+        val dgp = f.discreteLowRankGp
+
+        val ids = {
+          val sorted = dgp.mean.pointsWithIds.toIndexedSeq.sortBy(t => t._1.toArray.sum)
+          sorted.take(10).map(_._2)
+        }
+        val coef = (0 until 5).map(_ => this.random.scalaRandom.nextInt(100))
+        val adDgp = dgp.realign(ids, withExtendedBasis = false)
+        val aDgp = dgp.realign(ids, withExtendedBasis = false, diagonalize = false)
+
+        // true variance is not the same as naive reading of variance field
+        val varad = adDgp.variance.data.sum
+        val vara = aDgp.variance.data
+          .zip(breeze.linalg.norm(aDgp.basisMatrix, breeze.linalg.Axis._0).t.data)
+          .map(t => t._1 * (t._2 * t._2))
+          .sum
+        varad shouldBe vara +- 1e-5
+
+        // projection works as it relies on underlying regression calculations
+        val sample = adDgp.sample()
+        val proj = aDgp.project(sample)
+        val dif = sample.data.zip(proj.data).map(t => (t._1 - t._2).norm).sum
+        dif shouldBe 0.0 +- 1e-1
+
+        // marginal likelihood works
+        val marglad = adDgp.marginalLikelihood(f.trainingDataDiscreteGP)
+        val margla = aDgp.marginalLikelihood(f.trainingDataDiscreteGP)
+        marglad shouldBe margla +- 1e-5
+
+        // regression mean and variance are also the same
+        val td = f.trainingDataDiscreteGP.map(t => (t._1, EuclideanVector3D.ones, t._3))
+        val regmeanad = adDgp.posterior(td)
+        val regmeana = aDgp.posterior(td)
+        val difmeans = regmeanad.mean.data.zip(regmeana.mean.data).map(t => (t._1 - t._2).norm).sum
+        difmeans shouldBe 0.0 +- 1e-1
+        val corvarad = regmeanad.variance.data.sum
+        val corvara = regmeana.variance.data
+          .zip(breeze.linalg.norm(regmeana.basisMatrix, breeze.linalg.Axis._0).t.data)
+          .map(t => t._1 * (t._2 * t._2))
+          .sum
+        corvarad shouldBe corvara +- 1e-5
+      }
+    }
   }
 
   describe("when comparing marginalLikelihoods") {
